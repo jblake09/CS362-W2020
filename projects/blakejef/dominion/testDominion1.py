@@ -27,7 +27,7 @@ supply_order = testUtility.SupplyOrder()
 
 #Pick 10 cards from box to be in the supply.
 boxlist = [k for k in box]
-random.shuffle(boxlist)
+#random.shuffle(boxlist)
 random10 = boxlist[:10]
 supply = defaultdict(list,[(k,box[k]) for k in random10])
 
