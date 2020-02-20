@@ -25,7 +25,7 @@ class TestCard(TestCase):
 
         # Pick 10 cards from box to be in the supply.
         self.boxlist = [k for k in self.box]
-        random.shuffle(self.boxlist)
+        #random.shuffle(self.boxlist)
         self.random10 = self.boxlist[:10]
         self.supply = defaultdict(list, [(k, self.box[k]) for k in self.random10])
 
@@ -159,14 +159,56 @@ class TestActionCard(TestCase):
 
 
 class TestPlayer(TestCase):
+    def setUp(self):
+        self.player = Dominion.Player('Annie')
+        self.testActionCard = Dominion.Action_card("Run", 50, 10, 0, 5, 10)
+
     def test_action_balance(self):
-        pass
+        self.setUp()
+        self.player.hand.pop()
+        self.player.hand.insert(0, self.testActionCard)
+        #0-1+10 = 19->19*70/10=63
+        actionTest = Dominion.Player.action_balance(self.player)
+        self.assertEqual(63, actionTest)
     def test_calc_points(self):
-        pass
+        self.setUp()
+        i = 0
+        for card in self.player.stack():
+            if card.vpoints == 0:
+                self.player.hand.pop(i)
+                i += 1
+                break
+            i += 1
+        self.player.hand.insert(0, Dominion.Gardens())
+        #for card in self.player.stack():
+         #   print(card.vpoints)
+        testPoints = Dominion.Player.calcpoints(self.player)
+        self.assertEqual(4, testPoints)
     def test_draw(self):
-        pass
+        self.setUp()
+        Dominion.Player.draw(self.player)
+        self.assertEqual(4, len(self.player.deck))
+        self.assertEqual(6, len(self.player.hand))
+        self.player.discard = self.player.deck
+        self.assertEqual(4, len(self.player.discard))
+        self.player.deck.pop()
+        self.player.deck.pop()
+        self.player.deck.pop()
+        self.player.deck.pop()
+        Dominion.Player.draw(self.player)
+        self.assertEqual(len(self.player.discard), len(self.player.deck))
+        self.assertEqual(0, len(self.player.discard))
     def test_card_summary(self):
-        pass
+        self.setUp()
+        self.player.hand.insert(0, Dominion.Gardens())
+        summary = self.player.cardsummary()
+        ecount = summary['Estate']
+        ccount = summary['Copper']
+        vcount = summary['VICTORY POINTS']
+        self.assertEqual(3, ecount)
+        self.assertEqual(7, ccount)
+        self.assertEqual(summary['Gardens'], 1)
+        self.assertEqual(self.player.calcpoints(), vcount)
 
 class TestGameOver(TestCase):
 
